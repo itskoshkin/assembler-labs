@@ -52,7 +52,7 @@ int_09h_handler proc near                       ;обрабатывает пре
 		jmp     restore_registers
 	
 	unlock_file:            
-		mov     AX, 5C01h							;устанавливаем функцию DOS для деблокировки файла
+		mov     AX, 5C01h		            ;устанавливаем функцию DOS для деблокировки файла
 		mov     BX, file_handler                    ;установливаем файл для деблокировки
 		mov     CX, 0000h                           ;деблокируем файл с позиции 0
 		mov     DX, 0000h
@@ -92,7 +92,7 @@ int_21h_handler  proc near                      ;обрабатывает пре
     je      pass_21h_through
     pop     DS                                  ;восстанавливаем регистр DS
     push    DS                                  ;и сохраняем его снова
-    push    AX									;помещаем регистры в стек, чтобы сохранить их
+    push    AX					;помещаем регистры в стек, чтобы сохранить их
     push    BX
     push    CX
     push    DX
@@ -251,7 +251,7 @@ int_2Fh_handler endp
 ;СРАВНЕНИЕ СТРОК
 
 compare_strings proc near                           ;сравнивает две строки из CX: SI и DX: DI, устанавливает регистр AL в 1,
-													;если они равны, в противном случае устанавливает его в 0
+						    ;если они равны, в противном случае устанавливает его в 0
 	push    DS
 	
 	compare_next_char:      
@@ -379,7 +379,7 @@ check_if_installed endp
 check_if_locked proc near                       ;проверяет, заблокирован ли файл, результат сохраняет в регистре AL
     
 	mov     AX, 8002h
-    	int     2Fh                                 ;проверяем файл на залоченность
+    	int     2Fh                             ;проверяем файл на залоченность
     	ret
 	
 check_if_locked endp
@@ -413,7 +413,7 @@ install_program proc near                       ;устанавливает пр
     int     21h                                 ;получаем адрес прерывания 2Fh
     mov     word ptr old_2Fh_handler, BX
     mov     word ptr old_2Fh_handler + 2, ES
-    cli										    ;чистим флаг прерывания
+    cli						;чистим флаг прерывания
     mov     AX, 2509h
     mov     DX, offset int_09h_handler
     int     21h                                 ;устанавливаем адрес прерывания 09h
@@ -423,7 +423,7 @@ install_program proc near                       ;устанавливает пр
     mov     AX, 252Fh
     mov     DX, offset int_2Fh_handler
     int     21h                                 ;устанавливаем адрес прерывания 2Fh
-    sti										    ;устанавливаем флаг прерывания
+    sti						;устанавливаем флаг прерывания
     mov     AH, 09h
     mov     DX, offset install_suc_string
     int     21h                                 ;распечатать сообщение
@@ -444,7 +444,7 @@ install_program endp
 uninstall_program proc near                         ;удаляем программу по запросу
     
     call    check_if_locked
-    cmp     AL, 0000h                           	;проверяем, разблокирован ли файл в данный момент
+    cmp     AL, 0000h                               ;проверяем, разблокирован ли файл в данный момент
     je      file_unlocked
     jmp     file_locked
 	
