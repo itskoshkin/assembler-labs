@@ -4,8 +4,8 @@
 ; В конец файла записывается информация согласно ТЗ
 
 code_seg                segment
-						assume  CS:code_seg,DS:code_seg,SS:code_seg 
-						org     0100h	;смещение под служебную информацию, пропускаем 256 байт для MS-DOS
+			assume  CS:code_seg,DS:code_seg,SS:code_seg 
+			org     0100h	;смещение под служебную информацию, пропускаем 256 байт для MS-DOS
 
 ;УПРАВЛЯЮЩАЯ ЛОГИКА
 
