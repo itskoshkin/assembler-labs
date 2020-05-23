@@ -18,7 +18,7 @@ start:
 
 int_09h_handler proc near                       ;обрабатывает прерывание 09h
     
-	push    ES
+    push    ES
     push    DS                                  ;установливаем регистр DS
     push    CS
     pop     DS
@@ -80,7 +80,7 @@ int_09h_handler endp
 
 int_21h_handler  proc near                      ;обрабатывает прерывание 21h
     
-	push    ES
+    push    ES
     push    DS                                  ;установливаем регистр DS
     push    CS
     pop     DS
@@ -125,8 +125,8 @@ int_21h_handler  proc near                      ;обрабатывает пре
 
 	pass_21h_through:       
 		pop     DS                                  ;восстанавливаем регистр DS
-        pop     ES
-        jmp     dword ptr CS:[old_21h_handler]      ;вызываем старый обработчик 21h
+        	pop     ES
+        	jmp     dword ptr CS:[old_21h_handler]      ;вызываем старый обработчик 21h
 
 int_21h_handler endp
 
@@ -134,7 +134,7 @@ int_21h_handler endp
 
 int_2Fh_handler proc near                       ;обрабатывает прерывание 2Fh
     
-	push    ES
+    push    ES
     push    DS                                  ;установливаем регистр DS
     push    CS
     pop     DS
@@ -146,7 +146,7 @@ int_2Fh_handler proc near                       ;обрабатывает пре
     je      uninstallation
     cmp     AX, 8002h                           ;проверяем залочен ли файл
     je      lock_check
-	jmp     pass_2Fh_through
+    jmp     pass_2Fh_through
 	
 	installation_check:     
 		mov     AL, 00FFh                           ;установите FFh в регистр AL, чтобы отметить программу как уже загруженную
@@ -256,18 +256,18 @@ compare_strings proc near                           ;сравнивает две
 	
 	compare_next_char:      
 		push    CX
-        pop     DS                                  ;установливаем исходный сегмент
-        mov     BH, DS:[SI]                         ;копируем первый символ
-        push    DX
-        pop     DS                                  ;установливаем регистр назначения
-        mov     BL, DS:[DI]                         ;копируем второй символ
-        inc     SI
-        inc     DI                                  ;переходим к следующему символу
-        cmp     BH, BL                              ;проверяем, равны ли символы
-        jne     strings_are_not_equal               
-        cmp     BH, 00h                             ;проверяем, был ли достигнут конец строки
-        je      strings_are_equal
-        jmp     compare_next_char
+		pop     DS                                  ;установливаем исходный сегмент
+		mov     BH, DS:[SI]                         ;копируем первый символ
+		push    DX
+		pop     DS                                  ;установливаем регистр назначения
+		mov     BL, DS:[DI]                         ;копируем второй символ
+		inc     SI
+		inc     DI                                  ;переходим к следующему символу
+		cmp     BH, BL                              ;проверяем, равны ли символы
+		jne     strings_are_not_equal               
+		cmp     BH, 00h                             ;проверяем, был ли достигнут конец строки
+		je      strings_are_equal
+		jmp     compare_next_char
 	
 	strings_are_equal:      
 		mov     AL, 01h
@@ -276,8 +276,8 @@ compare_strings proc near                           ;сравнивает две
 
 	strings_are_not_equal:  
 		mov     AL, 00h
-        pop     DS
-        ret
+        	pop     DS
+        	ret
 		
 compare_strings endp
 
@@ -294,13 +294,13 @@ old_2Fh_handler         dd      00000000h
 ;УПРАВЛЯЮЩАЯ ЛОГИКА
 
 start_installer:        
-	call    check_if_installed
-	cmp     AL, 00FFh                           ;проверяем, установлена ли программа
+    call    check_if_installed
+    cmp     AL, 00FFh                           ;проверяем, установлена ли программа
     jne     program_not_installed
     jmp     program_installed
 
 program_not_installed:  
-	call    install_program
+    call    install_program
     int     20h
 
 program_installed:      
@@ -313,7 +313,7 @@ program_installed:
 
 read_file_name proc near                            ;пытаемся прочитать имя файла из префикса сегмента программы, если неудачно, читаем его из консоли
     
-	mov     CL, DS:[80h]
+    mov     CL, DS:[80h]
     cmp     CL, 00h                             	;проверяет, пуст ли буфер аргументов в префиксе сегмента программы
     je      read_from_console
     dec     CL                                  	;уменьшить регистр CL, чтобы не копировать \r
@@ -322,45 +322,45 @@ read_file_name proc near                            ;пытаемся прочи
 
 	copy_next_char_psp:		
 		mov		AL, DS:[SI]
-        mov     byte ptr[DI], AL                    ;копируем символ из префикса сегмента программы в массив file_name
-        inc     SI                                  ;переходим к следующему символу в префиксе сегмента программы
-        inc     DI                                  ;перейти к следующему символу в массиве file_name
-        dec     CL
-        cmp     CL, 00h                             ;проверяем, был ли последний символ скопирован из префикса сегмента программы в массив file_name
-        jg      copy_next_char_psp
-        mov     AL, 00h
-        mov     byte ptr[DI], AL                    ;записываем нулевой символ для использования массива file_name в качестве имени файла
-        ret
+		mov     byte ptr[DI], AL                    ;копируем символ из префикса сегмента программы в массив file_name
+		inc     SI                                  ;переходим к следующему символу в префиксе сегмента программы
+		inc     DI                                  ;перейти к следующему символу в массиве file_name
+		dec     CL
+		cmp     CL, 00h                             ;проверяем, был ли последний символ скопирован из префикса сегмента программы в массив file_name
+		jg      copy_next_char_psp
+		mov     AL, 00h
+		mov     byte ptr[DI], AL                    ;записываем нулевой символ для использования массива file_name в качестве имени файла
+		ret
 	
 	read_from_console:      
 		mov     DX, offset request_string
-        mov     AH, 09h
-        int     21h                                 ;печатаем строку вопроса для пользователя, чтобы узнать имя файла
-        mov     DI, offset file_name
-        mov     byte ptr[DI], 80h                   ;записываем длину массива file_name в первый байт
-        mov     DX, offset file_name
-        mov     AH, 0Ah
-        int     21h                                 ;прочитаем строку из консоли в массив file_name
-        mov     CL, file_name[01h]                  ;скопируем длину строки в регистр CL
-        mov     SI, offset file_name + 2h           ;установливаем регистр индекса источника на первый символ строки
-        mov     DI, offset file_name                ;установливаем регистр индекса назначения на первый символ в массиве file_name
+		mov     AH, 09h
+		int     21h                                 ;печатаем строку вопроса для пользователя, чтобы узнать имя файла
+		mov     DI, offset file_name
+		mov     byte ptr[DI], 80h                   ;записываем длину массива file_name в первый байт
+		mov     DX, offset file_name
+		mov     AH, 0Ah
+		int     21h                                 ;прочитаем строку из консоли в массив file_name
+		mov     CL, file_name[01h]                  ;скопируем длину строки в регистр CL
+		mov     SI, offset file_name + 2h           ;установливаем регистр индекса источника на первый символ строки
+		mov     DI, offset file_name                ;установливаем регистр индекса назначения на первый символ в массиве file_name
 
 	copy_next_char_console: 
 		mov     AL, DS:[SI]
 		mov     byte ptr[DI], AL                    ;скопируем символ из строки в массив file_name
-        inc     SI                                  ;перейти к следующему символу строки
-        inc     DI                                  ;перейти к следующему символу в массиве file_name
-        dec     CL
-        cmp     CL, 00h                             ;проверяем, был ли последний символ скопирован из строки в массив file_name
-        jg      copy_next_char_console
-        mov     AL, 00h
-        mov     byte ptr[DI], AL                    ;записываем нулевой символ для использования массива file_name в качестве имени файла
-        mov     AH, 02h
-        mov     DL, 0Dh
-        int     21h                                 ;печатаем \r
-        mov     DL, 0Ah
-        int     21h                                 ;печатаем \n
-        ret
+		inc     SI                                  ;перейти к следующему символу строки
+		inc     DI                                  ;перейти к следующему символу в массиве file_name
+		dec     CL
+		cmp     CL, 00h                             ;проверяем, был ли последний символ скопирован из строки в массив file_name
+		jg      copy_next_char_console
+		mov     AL, 00h
+		mov     byte ptr[DI], AL                    ;записываем нулевой символ для использования массива file_name в качестве имени файла
+		mov     AH, 02h
+		mov     DL, 0Dh
+		int     21h                                 ;печатаем \r
+		mov     DL, 0Ah
+		int     21h                                 ;печатаем \n
+		ret
 		
 read_file_name endp
 
@@ -368,7 +368,7 @@ read_file_name endp
 
 check_if_installed proc near                    ;проверяет, установлена ли программа, результат сохраняет в регистре AL
     
-	mov     AX, 8000h                           ;подготавливаем регистр AX перед вызовом прерывания 2Fh
+    mov     AX, 8000h                           ;подготавливаем регистр AX перед вызовом прерывания 2Fh
     int     2Fh                                 ;проверяем, установлена ли программа
     ret
 	
@@ -379,8 +379,8 @@ check_if_installed endp
 check_if_locked proc near                       ;проверяет, заблокирован ли файл, результат сохраняет в регистре AL
     
 	mov     AX, 8002h
-    int     2Fh                                 ;проверяем файл на залоченность
-    ret
+    	int     2Fh                                 ;проверяем файл на залоченность
+    	ret
 	
 check_if_locked endp
 
@@ -388,7 +388,7 @@ check_if_locked endp
 
 install_program proc near                       ;устанавливает программу по запросу
                         
-	mov     AH, 09h
+    mov     AH, 09h
     mov     DX, offset install_string
     int     21h                                 ;печатаем вопрос
     mov     AH, 08h
@@ -443,42 +443,42 @@ install_program endp
 
 uninstall_program proc near                         ;удаляем программу по запросу
     
-	call    check_if_locked
+    call    check_if_locked
     cmp     AL, 0000h                           	;проверяем, разблокирован ли файл в данный момент
     je      file_unlocked
     jmp     file_locked
 	
 	file_locked:            
 		mov     AH, 09h
-        mov     DX, offset file_locked_string
-        int     21h                                 ;печатаем сообщение
-        jmp     ask_to_uninstall
+		mov     DX, offset file_locked_string
+		int     21h                                 ;печатаем сообщение
+		jmp     ask_to_uninstall
 
 	file_unlocked:          
 		mov     AH, 09h
-        mov     DX, offset file_unlocked_string
-        int     21h                                 ;печатаем сообщение
+		mov     DX, offset file_unlocked_string
+		int     21h                                 ;печатаем сообщение
 
 	ask_to_uninstall:       
 		mov     DX, offset uninstall_string
-        int     21h                                 ;печатаем вопрос
-        mov     AH, 08h
-        int     21h                                 ;получаем символ нажатый пользователем
-        cmp     AL, 79h                             ;проверяем, является ли символ клавишей 'y'
-        jne     do_not_uninstall
-        mov     AX, 8001h
-        int     2Fh
-        cmp     AL, 01h                             ;проверяем, была ли программа удалена или нет
-        je      was_uninstalled
-        mov     AH, 09h
-        mov     DX, offset uninstall_pass_string
-        int     21h                                 ;пишем предупреждение
-        ret
+		int     21h                                 ;печатаем вопрос
+		mov     AH, 08h
+		int     21h                                 ;получаем символ нажатый пользователем
+		cmp     AL, 79h                             ;проверяем, является ли символ клавишей 'y'
+		jne     do_not_uninstall
+		mov     AX, 8001h
+		int     2Fh
+		cmp     AL, 01h                             ;проверяем, была ли программа удалена или нет
+		je      was_uninstalled
+		mov     AH, 09h
+		mov     DX, offset uninstall_pass_string
+		int     21h                                 ;пишем предупреждение
+        	ret
 
 	was_uninstalled:        
 		mov     AH, 09h
-        mov     DX, offset uninstall_suc_string
-        int     21h                                 ;печатаем сообщение
+		mov     DX, offset uninstall_suc_string
+		int     21h                                 ;печатаем сообщение
 	
 	do_not_uninstall:       
 		ret
