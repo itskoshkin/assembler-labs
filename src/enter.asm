@@ -249,7 +249,6 @@ write_statistics proc near             	;записывает статистик
 		call    write_word                  ;записать переменную cr_chars_counter
 		mov     AL, 0Dh
 		call    write_char_to_buffer        ;записать возврат каретки \r 
-		;was fixed 2Dh to 2Bh
 		mov     CL, 2Bh                     ;записать строку lt_chars_string
 		mov     SI, offset lt_chars_string
 
@@ -264,7 +263,6 @@ write_statistics proc near             	;записывает статистик
 		call    write_word                  ;записать переменную lt_chars_counter
 		mov     AL, 0Dh
 		call    write_char_to_buffer        ;записать возврат каретки \r
-		;was fixed 2Dh to 2Eh
 		mov     CL, 2Eh                     ;записать строку  cy_chars_string
 		mov     SI, offset cy_chars_string
 
