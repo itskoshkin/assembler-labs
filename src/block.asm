@@ -148,8 +148,19 @@ int_2Fh_handler proc near                       ;обрабатывает пре
     je      lock_check
     jmp     pass_2Fh_through
 	
+	pass_2Fh_through:       
+		pop     DS                                  ;восстанавливаем регистр DS
+		pop     ES
+		jmp     dword ptr CS:[old_2Fh_handler]      ;вызываем старый обработчик 2Аh
+	
 	installation_check:     
 		mov     AL, 00FFh                           ;установите FFh в регистр AL, чтобы отметить программу как уже загруженную
+		pop     DS                                  ;восстанавливаем регистр DS
+		pop     ES
+		iret                                        ;прерываем прерывание
+	
+	lock_check:             
+		mov     AL, is_file_locked                  ;установливаем регистр AL, чтобы пометить файл как заблокированный
 		pop     DS                                  ;восстанавливаем регистр DS
 		pop     ES
 		iret                                        ;прерываем прерывание
@@ -235,17 +246,6 @@ int_2Fh_handler proc near                       ;обрабатывает пре
 		pop     ES
 		iret                                        ;прерываем прерывание
 	
-	lock_check:             
-		mov     AL, is_file_locked                  ;установливаем регистр AL, чтобы пометить файл как заблокированный
-		pop     DS                                  ;восстанавливаем регистр DS
-		pop     ES
-		iret                                        ;прерываем прерывание
-	
-	pass_2Fh_through:       
-		pop     DS                                  ;восстанавливаем регистр DS
-		pop     ES
-		jmp     dword ptr CS:[old_2Fh_handler]      ;вызываем старый обработчик 2Аh
-
 int_2Fh_handler endp
 
 ;СРАВНЕНИЕ СТРОК
